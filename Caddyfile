@@ -1,32 +1,38 @@
-mydomain.com {
+ws.mydomain.com {
 
-    # Redirect hash-only paths missing trailing slash
-    @noSlash path_regexp noSlash ^/[a-f0-9]{64}$
-    redir @noSlash {http.request.uri}/ 308
+    # Proxy WebSocket traffic separately
+    reverse_proxy anttp_server:8081
 
-    # Serve simple root response
-    respond / "safebox server"
-
-    # Proxy WebSocket traffic to Node.js
-    reverse_proxy /ws* app:8081
-
-    # Proxy ONLY paths starting with /anttp/ to Rust AntTP server
-    # Strip the /anttp prefix before forwarding
-    handle_path /anttp/* {
-        reverse_proxy app:18888 {
-            header_up Host {host}
-            header_up X-Real-IP {remote_host}
-            header_up X-Forwarded-For {remote_host}
-            header_up X-Forwarded-Port {server_port}
-            header_up X-Forwarded-Proto {scheme}
-        }
-    }
-
-    # Enable gzip compression
     encode gzip
 
-    # Log to stdout
     log {
         output stdout
     }
+
+}
+
+anttp.mydomain.com {
+
+    # Proxy all other traffic to antTP Rust server
+    reverse_proxy anttp_server:18888
+
+    encode gzip
+
+    log {
+        output stdout
+    }
+
+}
+
+dweb.mydomain.com {
+
+    # Proxy all other traffic to DWEB Rust server
+    reverse_proxy  dweb_server:8083
+
+    encode gzip
+
+    log {
+        output stdout
+    }
+
 }
