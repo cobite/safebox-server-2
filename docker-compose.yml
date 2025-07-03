@@ -1,23 +1,38 @@
 version: "3.8"
 
 services:
-    app:
-        build: .
-        container_name: safebox_app
+    anttp_server:
+        build:
+            context: .
+            dockerfile: anttp/Dockerfile
+        container_name: anttp_server
         expose:
             - "8081" # Node.js WebSocket server port
             - "18888" # Rust antTP HTTP server port
         restart: unless-stopped
 
+    dweb_server:
+        build:
+            context: ./dweb
+        container_name: dweb_server
+        expose:
+            - "8083" # Rust DWEB HTTP server port
+        restart: unless-stopped
+
     caddy:
-        image: caddy:2-alpine
+        build:
+            context: ./caddy
+            dockerfile: Dockerfile
         container_name: caddy_reverse_proxy
         restart: unless-stopped
         ports:
             - "80:80"
             - "443:443"
+        depends_on:
+            - anttp_server
+            - dweb_server
         volumes:
-            - ./Caddyfile:/etc/caddy/Caddyfile
+            - ./caddy/Caddyfile:/etc/caddy/Caddyfile
             - caddy_data:/data
             - caddy_config:/config
 
