@@ -90,7 +90,7 @@ sudo mkdir -p /home/git/safebox-server
 1. Go to: [SafeMedia/safebox-server](https://github.com/SafeMedia/safebox-server)
 2. Click **Fork** to create your own copy
 3. Edit the `Caddyfile` in your forked repo:
-   - Change `ws.mydomain.com {` to your actual domain, do for ws. anttp. & dweb.:
+   - Change `ws.mydomain.com {` to your actual domain, do the same for ws. anttp. & dweb.:
      ```text
      ws.example.com {
      ```
@@ -114,7 +114,7 @@ cd /home/git/safebox-server
 nano Caddyfile
 ```
 
-Replace the first line with your actual domain or subdomain.
+Replace the first part of the file with your actual domain.
 
 ---
 
