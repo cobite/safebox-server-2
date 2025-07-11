@@ -126,9 +126,9 @@ Ensure your domain/subdomains point to your server's IP via A records.
 
 | Type | Host             | Value (IP)        | TTL   |
 |------|------------------|-------------------|-------|
-| A    | @                | your-server-ip    | 5 min |
-| A    | anttp            | your-server-ip    | 5 min |
 | A    | ws               | your-server-ip    | 5 min |
+| A    | anttp            | your-server-ip    | 5 min |
+| A    | dweb             | your-server-ip    | 5 min |
 
 DNS changes may take time to propagate.
 
