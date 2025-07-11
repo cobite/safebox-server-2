@@ -1,117 +1,225 @@
-Ensure you have a server running. For this example I am using a new Ubuntu 24 VPS.
+# 📦 SafeBox Server Deployment Guide
 
-First we will upgrade and update our packages:
+This guide walks you through deploying the **SafeBox** server on a fresh Ubuntu 24.04 VPS using **Docker**. You'll configure the server, clone the repo, and run the application in a clean, production-ready way.
 
-sudo apt update
+---
 
-sudo apt upgrade
+## 🖥️ Prerequisites
 
-Now we want to ensure to install Docker. This is a container management solution that will make deploying our app much easier.
+- A VPS or cloud instance (Ubuntu 24.04 recommended)
+- A domain or subdomain pointing to your server's IP
+- Basic familiarity with the terminal
 
+---
+
+## 🚀 Step 1: Update Your Server
+
+```bash
+sudo apt update && sudo apt upgrade -y
+```
+
+---
+
+## 🐳 Step 2: Install Docker
+
+Install required packages:
+
+```bash
 sudo apt install apt-transport-https ca-certificates curl software-properties-common -y
-sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
-echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu $(. /etc/os-release && echo "$VERSION_CODENAME") stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+```
 
-then update packages:
+Add Docker’s GPG key:
 
+```bash
+sudo mkdir -m 0755 -p /etc/apt/keyrings
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo tee /etc/apt/keyrings/docker.asc > /dev/null
+```
+
+Add the Docker repository:
+
+```bash
+echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] \
+https://download.docker.com/linux/ubuntu $(. /etc/os-release && echo "$VERSION_CODENAME") stable" | \
+sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+```
+
+Install Docker and related tools:
+
+```bash
 sudo apt update
+sudo apt install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin -y
+```
 
-then install docker:
+Verify Docker installation:
 
-sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+```bash
+docker --version
+```
 
-You can see your docker version to confirm it installed:
+Enable the Docker service:
 
-sudo docker --version
-
-Now we want to enable the docker service to run:
-
+```bash
 sudo service docker start
+```
 
-You can also set up your servers firewall (ensure you allow ssh first before enabling, if you are using ssh so you don't get locked out):
+---
 
+## 🔐 (Optional) Set Up UFW Firewall
+
+> ⚠️ If you're using SSH, allow it before enabling the firewall!
+
+```bash
 sudo ufw allow ssh
 sudo ufw allow http
 sudo ufw allow https
 sudo ufw enable
+```
 
-We will now download the source code for safebox to our server (you can do this from your servers root). If you see 'server-name:~#' on the left side of your teminal and do 'ls ./' and don't see any folders, you can go to the root by 'cd /', now the left side of the console should show: 'server-name:/#' and with 'ls' you should see all the main folders.
+---
 
-we are going to create a git folder within the home directory, to do this you can run the following from the root location:
+## 📁 Step 3: Clone the SafeBox Server
 
+Create a directory for the code:
+
+```bash
 sudo mkdir -p /home/git/safebox-server
+```
 
-Now you should go to https://github.com/SafeMedia/safebox-server and click the fork button. This will make a copy of the repo. Then go to your newly created repo and edit the caddy file. Here is an example forked repo path to the caddy file, replace 'your-account' with your own github account:
+### Option A: Fork and Customize
 
-https://github.com/your-account/safebox-server/blob/main/Caddyfile
+1. Go to: [SafeMedia/safebox-server](https://github.com/SafeMedia/safebox-server)
+2. Click **Fork** to create your own copy
+3. Edit the `Caddyfile` in your forked repo:
+   - Change `ws.mydomain.com {` to your actual domain, do for ws. anttp. & dweb.:
+     ```text
+     ws.example.com {
+     ```
+     ```text
+     anttp.example.com {
+     ```
+     ```text
+     dweb.example.com {
+     ```
 
-There you can click the edit button. Then replace the first line 'mydomain.com {' with your own domain, or sub domain:
+4. Clone your forked repo:
+   ```bash
+   git clone https://github.com/your-username/safebox-server.git /home/git/safebox-server
+   ```
 
-sub.mydomain.com {
+### Option B: Clone Directly and Edit, I'm using a folder called safebox-server
 
-or
+```bash
+git clone https://github.com/SafeMedia/safebox-server.git /home/git/safebox-server
+cd /home/git/safebox-server
+nano Caddyfile
+```
 
-mydomain.com {
+Replace the first line with your actual domain or subdomain.
 
-we will now download the safebox server repo from the new github into the git directory on our server:
+---
 
-git clone https://github.com/your-repo/safebox-server.git /home/git/safebox-server
+## 🌐 Step 4: Configure Your Domain (DNS)
 
-If you want to delete your current safebox-server code on your server you can do:
+Ensure your domain/subdomains point to your server's IP via A records.
 
-sudo rm -r -f /home/git/safebox-server
+### Example A Record Configurations:
 
-If you don't want to fork the repo, you can just clone the main repo and edit the caddyfile using nano
+| Type | Host             | Value (IP)        | TTL   |
+|------|------------------|-------------------|-------|
+| A    | @                | your-server-ip    | 5 min |
+| A    | anttp            | your-server-ip    | 5 min |
+| A    | ws               | your-server-ip    | 5 min |
 
-We now need to ensure you set up your domain to point to your server.
+DNS changes may take time to propagate.
 
-You must set your A record in your domain providers settings to point to your servers IP address. This may take a few hours or longer, depending on your location. You can check many dns lookup websites to see if it has updated yet.
+---
 
-An example A record for the root domain (domain.com) would look like:
+## 🧱 Step 5: Start the SafeBox Server
 
-TYPE HOST VALUE TTL
-A Record @ server ip 5 min
-
-An example A record for a sub-domain (anttp.domain.com) would look like:
-
-TYPE HOST VALUE TTL
-A Record anttp server ip 5 min
-
-Once that is done for your 3 sub-domains you can proceed.
-
-To start the application, we will do:
-
+```bash
 docker compose -f /home/git/safebox-server/docker-compose.yml up -d
+```
 
-if you want to rebuild the image (if you pulled new source code and have older version), you can do this instead:
+To rebuild the app with fresh changes:
 
+```bash
 docker compose -f /home/git/safebox-server/docker-compose.yml up --build -d
+```
 
-If you want to stop your docker containers you can do:
+To stop the app:
 
+```bash
 docker compose -f /home/git/safebox-server/docker-compose.yml down
+```
 
-Trouble-shooting
+---
 
-You can test to see if your websocket connection is working via postman desktop application, by creating a new websocket request type, and entering:
+## 🧪 Step 6: Test Your Setup
 
-wss://ws.domain.com
+### WebSocket Test (via [Postman](https://www.postman.com/downloads/)):
 
-You should see 'Connected to wss://ws.domain.com'
+1. Open a new WebSocket request.
+2. Connect to:
+   ```
+   wss://ws.yourdomain.com
+   ```
+3. You should see:
+   ```
+   Connected to wss://ws.yourdomain.com
+   ```
 
-You can now send a message like: '91d16e58e9164bccd29a8fd8d25218a61d8253b51c26119791b2633ff4f6b309/start-a-node.png' which should send a binary response starting with: '...v{"mimeType":
-00000010: 22 69 6D 61 67 65 2F 70 6E 67 22 2C 22 78 6F 72 "image/png","xor
-00000020: 6E 61 6D 65 22 3A 22 39 31 64 31 36 65 35 38 65 name":"91d16e58e
-00000030: 39 31 36 34 62 63 63 64 32 39 61 38 66 64 38 64 9164bccd29a8'
+4. Send a message like:
+   ```
+   91d16e58e9164bccd29a8fd8d25218a61d8253b51c26119791b2633ff4f6b309/start-a-node.png
+   ```
 
-You can also just go to your web browser, enter a new tab and type https://anttp.domain.com/91d16e58e9164bccd29a8fd8d25218a61d8253b51c26119791b2633ff4f6b309/autonomi/start-a-node.png
+   Expect a binary response starting with:
+   ```
+   ...v{"mimeType":"image/png","xorname":"91d16e58e...
+   ```
 
-You can check to see if it is working by checking the logs in the docker container.
+### Browser Test
 
-List docker containers:
+Try accessing:
 
+```
+https://anttp.yourdomain.com/91d16e58e9164bccd29a8fd8d25218a61d8253b51c26119791b2633ff4f6b309/autonomi/start-a-node.png
+```
+
+---
+
+## 🛠️ Troubleshooting
+
+List all running Docker containers:
+
+```bash
 docker ps
+```
 
-See logs for container:
+View logs for a container:
 
-docker container logs container-id
+```bash
+docker container logs <container-id>
+```
+
+Delete current source code (if needed to restart):
+
+```bash
+sudo rm -rf /home/git/safebox-server
+```
+
+If you wish to upgrade & rebuild your images in the future you can do:
+
+```bash
+docker compose -f /home/git/safebox-server/docker-compose.yml down
+```
+then
+
+```bash
+docker compose -f /home/git/safebox-server/docker-compose.yml up --build -d
+```
+---
+
+## ✅ You're Done!
+
+Your SafeBox server should now be up and running, accessible via your sub-domains and ready to serve content securely and efficiently.
