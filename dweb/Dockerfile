@@ -21,9 +21,9 @@ RUN git clone https://codeberg.org/happybeing/dweb.git
 WORKDIR /usr/src/dweb
 RUN cargo build --release
 
-EXPOSE 8083
+EXPOSE 5537
 
-CMD ["./target/release/dweb", "serve", "--port", "8083", "--host", "0.0.0.0"]
+CMD ["./target/release/dweb", "serve", "--port", "5537", "--host", "0.0.0.0"]
 
 
 

@@ -16,7 +16,7 @@ services:
             context: ./dweb
         container_name: dweb_server
         expose:
-            - "8083" # Rust DWEB HTTP server port
+            - "5537" # Rust DWEB HTTP server port
         restart: unless-stopped
 
     caddy:
