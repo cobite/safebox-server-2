@@ -2,6 +2,10 @@
 
 This guide walks you through deploying the **SafeBox** server on a fresh Ubuntu 24.04 VPS using **Docker**. You'll configure the server, clone the repo, and run the application in a clean, production-ready way.
 
+Here is an example of a server using SafeBox server:
+
+https://anttp.antsnest.site/gindex
+
 ---
 
 ## 🖥️ Prerequisites
