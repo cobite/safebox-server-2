@@ -212,6 +212,13 @@ Delete current source code (if needed to restart):
 sudo rm -rf /home/git/safebox-server
 ```
 
+You can pull the latest again:
+
+```bash
+git clone https://github.com/username/safebox-server.git /home/git/safebox-server
+```
+
+
 If you wish to upgrade & rebuild your images in the future you can do:
 
 ```bash
