@@ -1,4 +1,4 @@
-ws.mydomain.com {
+ws.safemedia.com {
 
     # Proxy WebSocket traffic separately
     reverse_proxy anttp_server:8081
@@ -11,7 +11,7 @@ ws.mydomain.com {
 
 }
 
-anttp.mydomain.com {
+anttp.safemedia.com {
 
     # Proxy all other traffic to antTP Rust server
     reverse_proxy anttp_server:18888
@@ -24,7 +24,7 @@ anttp.mydomain.com {
 
 }
 
-dweb.mydomain.com {
+dweb.safemedia.com {
 
     # Proxy all other traffic to DWEB Rust server
     reverse_proxy  dweb_server:5537
