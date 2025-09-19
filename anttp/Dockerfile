@@ -1,22 +1,28 @@
-# Use official AntTP image
-FROM traktion/anttp:latest
-
-# Install Node.js and npm (if missing)
-RUN apk add --no-cache nodejs npm
+# Stage 1: Build TypeScript
+FROM node:20-alpine AS builder
 
 WORKDIR /app
 
-# Copy only package.json & install
+# Install deps
 COPY package*.json ./
 RUN npm install
 
-# Copy your server code
+# Copy source and build
+COPY tsconfig.json ./
 COPY src ./src
-COPY dist ./dist  # if you build locally, or build here
-
-# If you need to build TS
 RUN npm run build
+
+# Stage 2: Runtime
+FROM node:20-alpine
+
+WORKDIR /app
+
+# Only copy runtime deps + build output
+COPY package*.json ./
+RUN npm install --omit=dev
+
+COPY --from=builder /app/dist ./dist
 
 EXPOSE 8081
 
-CMD ["npm", "start"]
+CMD ["node", "dist/server.js"]
