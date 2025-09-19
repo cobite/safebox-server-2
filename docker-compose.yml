@@ -23,14 +23,6 @@ services:
             - anttp_rust
         restart: unless-stopped
 
-    dweb_server:
-        build:
-            context: ./dweb
-        container_name: dweb_server
-        expose:
-            - "5537" # Rust DWEB HTTP server port
-        restart: unless-stopped
-
     caddy:
         image: caddy:2-alpine
         container_name: caddy_reverse_proxy
@@ -41,7 +33,6 @@ services:
         depends_on:
             - anttp_rust
             - anttp_proxy
-            - dweb_server
         volumes:
             - ./Caddyfile:/etc/caddy/Caddyfile
             - caddy_data:/data

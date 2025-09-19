@@ -20,13 +20,4 @@ anttp.safemedia.com {
     }
 }
 
-dweb.safemedia.com {
-    # Proxy all other traffic to DWEB Rust server
-    reverse_proxy dweb_server:5537
 
-    encode gzip
-
-    log {
-        output stdout
-    }
-}
