@@ -1,46 +1,22 @@
-# Stage 1: Build AntTP using Rust nightly
-FROM rustlang/rust:nightly-alpine as builder
+# Use official AntTP image
+FROM traktion/anttp:latest
 
-# Install required build tools
-RUN apk add --no-cache \
-  git \
-  musl-dev \
-  gcc \
-  protoc \
-  protobuf-dev \
-  build-base \
-  cmake \
-  pkgconfig \
-  curl
+# Install Node.js and npm (if missing)
+RUN apk add --no-cache nodejs npm
 
-# Install rustfmt for nightly toolchain
-RUN rustup component add rustfmt
-
-# Clone AntTP repo
-WORKDIR /build
-RUN git clone https://github.com/traktion/AntTP.git anttp
-
-# Build AntTP in release mode
-WORKDIR /build/anttp
-RUN cargo build --release
-
-# Stage 2: Node.js + WebSocket server
-FROM node:20-alpine
-
-# Copy AntTP binary
-COPY --from=builder /build/anttp/target/release/anttp /usr/local/bin/anttp
-RUN chmod +x /usr/local/bin/anttp
-
-# Set up your Node.js app
 WORKDIR /app
+
+# Copy only package.json & install
 COPY package*.json ./
 RUN npm install
 
-COPY . .
+# Copy your server code
+COPY src ./src
+COPY dist ./dist  # if you build locally, or build here
+
+# If you need to build TS
 RUN npm run build
 
-EXPOSE 18888
 EXPOSE 8081
 
-CMD ["sh", "-c", "anttp & npm start"]
-
+CMD ["npm", "start"]
