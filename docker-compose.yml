@@ -4,7 +4,7 @@ services:
         image: traktion/anttp:latest
         container_name: anttp_rust
         expose:
-            - "18888"
+            - "8080"
         restart: unless-stopped
 
     # Your custom Node.js WebSocket proxy
@@ -14,7 +14,7 @@ services:
             dockerfile: Dockerfile # (place this new Dockerfile at project root)
         container_name: anttp_proxy
         environment:
-            - ANTPP_ENDPOINT=http://anttp_rust:18888
+            - ANTPP_ENDPOINT=http://anttp_rust:8080
         expose:
             - "8081"
         depends_on:

@@ -11,7 +11,7 @@ ws.safemedia.com {
 
 anttp.safemedia.com {
     # Proxy all other traffic to AntTP Rust server
-    reverse_proxy anttp_rust:18888
+    reverse_proxy anttp_rust:8080
 
     encode gzip
 
